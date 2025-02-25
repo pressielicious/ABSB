@@ -80,24 +80,3 @@ document.getElementById("tsunamiButton").addEventListener("click", function () {
         alert("Password salah!");
     }
 });
-
-// 🔹 **Tambahan Baru: Left-click untuk tambah marker**
-map.on('click', function (e) {
-    let name = prompt("Masukkan nama marker:");
-    if (name) {
-        let newMarker = {
-            id: markerId,
-            name: name,
-            x: e.latlng.lng,
-            y: e.latlng.lat
-        };
-
-        let marker = L.marker([newMarker.y, newMarker.x])
-            .bindPopup(newMarker.name)
-            .addTo(map);
-
-        markers[newMarker.id] = marker;
-        newMarkers.push(newMarker);
-        markerId++;
-    }
-});
