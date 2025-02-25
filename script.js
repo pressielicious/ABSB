@@ -34,7 +34,7 @@ async function loadMarkers() {
 // Sync ke Google Sheets
 function syncToGoogleSheets() {
     let hiddenData = hiddenMarkers.map(m => `${m.id},${m.x},${m.y}`).join("\n");
-    let url = "https://script.google.com/macros/s/YOUR_GOOGLE_SCRIPT_ID/exec";
+    let url = "https://script.google.com/macros/s/AKfycbzyHJh3UraXvawXsoDTyCutZ559RLc7XBs6byPNpdwkj_7hiDEoyn-QXh3lf8ar2nHUrg/exec";
     fetch(url, {
         method: "POST",
         body: JSON.stringify({ hidden: hiddenData })
