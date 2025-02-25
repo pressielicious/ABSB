@@ -16,7 +16,7 @@ let lastHiddenMarker = null;
 const markerData = [  
     { id: "marker1", lat: -100, lng: 200 },  
     { id: "marker2", lat: -400, lng: 500 },  
-    { id: "marker3", lat: -590, lng:700 }
+    { id: "marker3", lat: -590, lng: 700 }
 ];
 
 function loadMarkers() {
