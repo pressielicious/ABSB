@@ -16,8 +16,8 @@
 
     <script>
         // 1. Setup Supabase
-        const supabaseUrl = "https://YOUR_SUPABASE_URL.supabase.co";
-        const supabaseKey = "YOUR_ANON_KEY";
+        const supabaseUrl = "https://hlktlsxfjnxjqnpzyymx.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhsa3Rsc3hmam54anFucHp5eW14Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA0OTE1MTUsImV4cCI6MjA1NjA2NzUxNX0.bU99XgpP56L6LPmCYQRqx-zT2kwiXxEg4uKAP9kWBhk";
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         // 2. Inisialisasi Peta Leaflet
