@@ -80,3 +80,54 @@ document.getElementById("tsunamiButton").addEventListener("click", function () {
         alert("Password salah!");
     }
 });
+
+// 🔹 **Tambahan Baru: Left-click untuk tambah marker**
+map.on('click', function (e) {
+    let name = prompt("Masukkan nama marker:");
+    if (name) {
+        let newMarker = {
+            id: markerId,
+            name: name,
+            x: e.latlng.lng,
+            y: e.latlng.lat
+        };
+
+        let marker = L.marker([newMarker.y, newMarker.x])
+            .bindPopup(newMarker.name)
+            .addTo(map);
+
+        markers[newMarker.id] = marker;
+        newMarkers.push(newMarker);
+        markerId++;
+    }
+});
+
+// 🔹 **Tambahan Baru: Butang "Save Markers"**
+var saveButton = document.createElement("button");
+saveButton.innerText = "Save Markers";
+saveButton.style.position = "absolute";
+saveButton.style.top = "10px";
+saveButton.style.right = "10px";
+saveButton.style.padding = "10px 15px";
+saveButton.style.backgroundColor = "#007bff";
+saveButton.style.color = "white";
+saveButton.style.border = "none";
+saveButton.style.borderRadius = "5px";
+saveButton.style.cursor = "pointer";
+
+saveButton.addEventListener("click", function () {
+    if (newMarkers.length === 0) {
+        alert("Tiada marker baru untuk disimpan!");
+        return;
+    }
+
+    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(newMarkers, null, 4));
+    let downloadAnchor = document.createElement("a");
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "new_markers.json");
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    document.body.removeChild(downloadAnchor);
+});
+
+document.body.appendChild(saveButton);
