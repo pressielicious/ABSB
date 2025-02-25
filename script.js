@@ -52,19 +52,5 @@ document.getElementById('undoButton').addEventListener('click', function () {
     }
 });
 
-// Fungsi Tsunami: kembalikan semua marker
-function tsunamiRestore() {
-    hiddenMarkers.forEach(coord => {
-        let marker = L.marker([coord.y, coord.x]).addTo(map)
-            .bindPopup(coord.name);
-        markers[coord.id] = marker;
-    });
-    hiddenMarkers = [];
-    syncToGoogleSheets();
-}
-
-// Butang Tsunami
-document.getElementById('tsunamiButton').addEventListener('click', tsunamiRestore);
-
 // Load markers
 loadMarkers();
