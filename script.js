@@ -1,80 +1,64 @@
-const map = L.map('map', {
-    crs: L.CRS.Simple,
-    minZoom: -2,
-    maxZoom: 1
-}).setView([0, 0], -1);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTA V Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js"></script>
+    <style>
+        #map { height: 100vh; width: 100vw; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
 
-const imageUrl = "map.jpeg";
-const imageBounds = [[-12888, -8192], [12888, 8192]];
-L.imageOverlay(imageUrl, imageBounds).addTo(map);
-map.setMaxBounds(imageBounds);
+    <script>
+        // 1. Setup Supabase
+        const supabaseUrl = "https://YOUR_SUPABASE_URL.supabase.co";
+        const supabaseKey = "YOUR_ANON_KEY";
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-const markers = {};
-let hiddenMarkers = [];
-let lastHiddenMarker = null;
+        // 2. Inisialisasi Peta Leaflet
+        const map = L.map("map", {
+            minZoom: -2, // Supaya boleh zoom out banyak
+            maxZoom: 2, 
+            crs: L.CRS.Simple // Sesuai untuk peta gambar
+        });
 
-// Data marker statik
-const markerData = [
-    { id: "marker1", lat: 100, lng: 200 },
-    { id: "marker2", lat: -300, lng: 150 },
-    { id: "marker3", lat: 400, lng: -250 }
-];
+        const bounds = [[0, 0], [12888, 8192]]; // Resolusi peta (ikut projek ABSB kau)
+        const imageOverlay = L.imageOverlay("map.jpeg", bounds).addTo(map);
+        map.fitBounds(bounds);
 
-function loadMarkers() {
-    markerData.forEach(data => {
-        const marker = L.marker([data.lat, data.lng]).addTo(map)
-            .on("contextmenu", (event) => {
-                event.preventDefault();  // Elak menu right-click browser
-                hideMarker(data.id);
+        // 3. Senarai marker
+        const markers = [
+            { id: "marker1", lat: 2000, lng: 3000 },
+            { id: "marker2", lat: 5000, lng: 7000 }
+        ];
+
+        const markerLayers = {};
+
+        async function loadHiddenMarkers() {
+            let { data, error } = await supabase.from("hidden_markers").select("*");
+            if (error) console.error("Error loading markers:", error);
+
+            const hiddenMarkers = new Set(data.map(m => m.id));
+
+            // 4. Tambah marker ke peta
+            markers.forEach(({ id, lat, lng }) => {
+                if (!hiddenMarkers.has(id)) {
+                    markerLayers[id] = L.marker([lat, lng])
+                        .addTo(map)
+                        .on("contextmenu", async function () {
+                            this.remove(); 
+                            await supabase.from("hidden_markers").upsert([{ id }]);
+                        });
+                }
             });
-
-        markers[data.id] = marker;
-    });
-
-    // **Sync hidden markers dari Firebase**
-    database.ref("hiddenMarkers").on("value", snapshot => {
-        hiddenMarkers = snapshot.val() || [];
-        updateMarkers();
-    });
-}
-
-// **Fungsi untuk Hide Marker & Sync ke Firebase**
-function hideMarker(id) {
-    if (!hiddenMarkers.includes(id)) {
-        hiddenMarkers.push(id);
-        lastHiddenMarker = id;
-        updateDatabase(); // Sync ke Firebase
-    }
-}
-
-// **Update marker visibility berdasarkan Firebase**
-function updateMarkers() {
-    Object.keys(markers).forEach(id => {
-        if (hiddenMarkers.includes(id)) {
-            if (map.hasLayer(markers[id])) {
-                map.removeLayer(markers[id]);
-            }
-        } else {
-            if (!map.hasLayer(markers[id])) {
-                markers[id].addTo(map);
-            }
         }
-    });
-}
 
-// **Simpan hiddenMarkers ke Firebase**
-function updateDatabase() {
-    database.ref("hiddenMarkers").set(hiddenMarkers);
-}
-
-// **Undo - Buang marker terakhir dari senarai tersembunyi**
-document.getElementById("undoBtn").addEventListener("click", () => {
-    if (lastHiddenMarker) {
-        hiddenMarkers = hiddenMarkers.filter(id => id !== lastHiddenMarker);
-        lastHiddenMarker = null;
-        updateDatabase(); // Sync ke Firebase
-    }
-});
-
-// **Muatkan marker bila web dibuka**
-loadMarkers();
+        loadHiddenMarkers();
+    </script>
+</body>
+</html>
