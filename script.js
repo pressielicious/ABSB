@@ -3,12 +3,13 @@ var map = L.map('map', {
     crs: L.CRS.Simple,
     minZoom: -2,
     maxZoom: 2
+    maxBounds: [[-1000, -1000], [13888, 9192]], // Had sempadan peta
+    maxBoundsViscosity: 1.0 // Halang peta daripada keluar dari had
 });
 
 var mapBounds = [[0, 0], [12888, 8192]]; // Saiz peta
 var image = L.imageOverlay('map.jpeg', mapBounds).addTo(map);
 map.fitBounds(mapBounds);
-map.setMaxBounds(imageBounds);
 
 var markers = {};
 var hiddenMarkers = [];
