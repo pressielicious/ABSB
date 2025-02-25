@@ -5,7 +5,7 @@ const map = L.map('map', {
 }).setView([0, 0], -1);
 
 const imageUrl = "map.jpeg";  // Tukar kepada fail peta GTA V
-const imageBounds = [[-0, -0], [8192, 12888]];
+const imageBounds = [[-12888, -8192], [12888, 8192]];
 
 L.imageOverlay(imageUrl, imageBounds).addTo(map);
 map.setMaxBounds(imageBounds);
