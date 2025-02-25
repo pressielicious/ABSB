@@ -16,7 +16,7 @@ map.setMaxBounds(bounds);
 // Senarai marker
 var markers = {};
 var hiddenMarkers = [];
-var sheetURL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
+var sheetURL = "https://script.google.com/macros/s/AKfycbxEb8S7Pqv8od1DaT52VPELjoM7Q_pbINotd_gk8g_eW9_I5WBoEdcfd1Yfy5lTtcZLqw/exec";
 
 // Muatkan marker dari marker.json
 fetch('marker.json')
