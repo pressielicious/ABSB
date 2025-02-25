@@ -13,9 +13,10 @@ const markers = {};
 let hiddenMarkers = [];
 let lastHiddenMarker = null;
 
-const markerData = [  
-    { id: "marker1", lat: 100, lng: 200 },  
-    { id: "marker2", lat: -300, lng: 150 },  
+// Data marker statik
+const markerData = [
+    { id: "marker1", lat: 100, lng: 200 },
+    { id: "marker2", lat: -300, lng: 150 },
     { id: "marker3", lat: 400, lng: -250 }
 ];
 
@@ -30,20 +31,23 @@ function loadMarkers() {
         markers[data.id] = marker;
     });
 
+    // **Sync hidden markers dari Firebase**
     database.ref("hiddenMarkers").on("value", snapshot => {
         hiddenMarkers = snapshot.val() || [];
         updateMarkers();
     });
 }
 
+// **Fungsi untuk Hide Marker & Sync ke Firebase**
 function hideMarker(id) {
     if (!hiddenMarkers.includes(id)) {
         hiddenMarkers.push(id);
         lastHiddenMarker = id;
-        updateDatabase();
+        updateDatabase(); // Sync ke Firebase
     }
 }
 
+// **Update marker visibility berdasarkan Firebase**
 function updateMarkers() {
     Object.keys(markers).forEach(id => {
         if (hiddenMarkers.includes(id)) {
@@ -58,16 +62,19 @@ function updateMarkers() {
     });
 }
 
+// **Simpan hiddenMarkers ke Firebase**
 function updateDatabase() {
     database.ref("hiddenMarkers").set(hiddenMarkers);
 }
 
+// **Undo - Buang marker terakhir dari senarai tersembunyi**
 document.getElementById("undoBtn").addEventListener("click", () => {
     if (lastHiddenMarker) {
         hiddenMarkers = hiddenMarkers.filter(id => id !== lastHiddenMarker);
         lastHiddenMarker = null;
-        updateDatabase();
+        updateDatabase(); // Sync ke Firebase
     }
 });
 
+// **Muatkan marker bila web dibuka**
 loadMarkers();
