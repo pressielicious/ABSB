@@ -80,3 +80,14 @@ document.getElementById("tsunamiButton").addEventListener("click", function () {
         alert("Password salah!");
     }
 });
+
+// Simpan marker sebagai fail JSON
+document.getElementById("saveButton").addEventListener("click", function () {
+    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(addedMarkers, null, 2));
+    let downloadAnchor = document.createElement("a");
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "markers.json");
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    document.body.removeChild(downloadAnchor);
+});
