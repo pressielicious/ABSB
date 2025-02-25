@@ -6,6 +6,7 @@ const map = L.map('map', {
 
 const imageUrl = "map.jpeg";  // Tukar kepada fail peta GTA V
 const imageBounds = [[-12888, -8192], [12888, 8192]];
+
 L.imageOverlay(imageUrl, imageBounds).addTo(map);
 map.setMaxBounds(imageBounds);
 
@@ -14,31 +15,29 @@ let hiddenMarkers = [];
 let lastHiddenMarker = null;
 
 const markerData = [  
-    { id: "marker1", lat: -100, lng: 200 },  
-    { id: "marker2", lat: -400, lng: 500 },  
-    { id: "marker3", lat: -590, lng: 700 }
+    { id: "marker1", lat: 100, lng: 200 },  
+    { id: "marker2", lat: -300, lng: 150 },  
+    { id: "marker3", lat: 400, lng: -250 }
 ];
 
 function loadMarkers() {
+    markerData.forEach(data => {
+        const marker = L.marker([data.lat, data.lng]).addTo(map)
+            .on("contextmenu", () => hideMarker(data.id));
+
+        markers[data.id] = marker;
+    });
+
     database.ref("hiddenMarkers").on("value", snapshot => {
         hiddenMarkers = snapshot.val() || [];
         updateMarkers();
     });
-
-    markerData.forEach(data => {
-        const marker = L.marker([data.lat, data.lng]).addTo(map)
-            .on("contextmenu", (e) => hideMarker(data.id, marker));
-
-        markers[data.id] = marker;
-    });
 }
 
-function hideMarker(id, marker) {
+function hideMarker(id) {
     if (!hiddenMarkers.includes(id)) {
         hiddenMarkers.push(id);
         lastHiddenMarker = id;
-
-        map.removeLayer(marker);
         updateDatabase();
     }
 }
