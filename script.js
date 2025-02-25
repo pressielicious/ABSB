@@ -4,8 +4,8 @@ const map = L.map('map', {
     maxZoom: 1
 }).setView([0, 0], -1);
 
-const imageUrl = "map.jpeg";  // Tukar kepada map.jpeg
-const imageBounds = [[-12888, -8192], [12888, 8192]];  // Update koordinat
+const imageUrl = "map.jpeg";
+const imageBounds = [[-12888, -8192], [12888, 8192]];
 L.imageOverlay(imageUrl, imageBounds).addTo(map);
 map.setMaxBounds(imageBounds);
 
@@ -22,7 +22,10 @@ const markerData = [
 function loadMarkers() {
     markerData.forEach(data => {
         const marker = L.marker([data.lat, data.lng]).addTo(map)
-            .on("contextmenu", () => hideMarker(data.id));
+            .on("contextmenu", (event) => {
+                event.preventDefault();  // Elak menu right-click browser
+                hideMarker(data.id);
+            });
 
         markers[data.id] = marker;
     });
@@ -44,9 +47,13 @@ function hideMarker(id) {
 function updateMarkers() {
     Object.keys(markers).forEach(id => {
         if (hiddenMarkers.includes(id)) {
-            map.removeLayer(markers[id]);
+            if (map.hasLayer(markers[id])) {
+                map.removeLayer(markers[id]);
+            }
         } else {
-            markers[id].addTo(map);
+            if (!map.hasLayer(markers[id])) {
+                markers[id].addTo(map);
+            }
         }
     });
 }
