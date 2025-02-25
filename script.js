@@ -12,6 +12,7 @@ map.setMaxBounds(imageBounds);
 const markers = {};
 let hiddenMarkers = [];
 let lastHiddenMarker = null;
+let longPressTimer = null;
 
 // Data marker statik
 const markerData = [
@@ -22,11 +23,22 @@ const markerData = [
 
 function loadMarkers() {
     markerData.forEach(data => {
-        const marker = L.marker([data.lat, data.lng]).addTo(map)
-            .on("contextmenu", (event) => {
-                event.preventDefault();  // Elak menu right-click browser
-                hideMarker(data.id);
-            });
+        const marker = L.marker([data.lat, data.lng]).addTo(map);
+
+        // **PC: Right-Click untuk hide**
+        marker.on("contextmenu", (event) => {
+            event.preventDefault();
+            hideMarker(data.id);
+        });
+
+        // **Phone: Tekan Lama (Long Press) untuk hide**
+        marker.on("mousedown touchstart", () => {
+            longPressTimer = setTimeout(() => hideMarker(data.id), 1500); // 1.5 saat
+        });
+
+        marker.on("mouseup touchend", () => {
+            clearTimeout(longPressTimer); // Hentikan jika user lepaskan sebelum 1.5s
+        });
 
         markers[data.id] = marker;
     });
@@ -43,7 +55,7 @@ function hideMarker(id) {
     if (!hiddenMarkers.includes(id)) {
         hiddenMarkers.push(id);
         lastHiddenMarker = id;
-        updateDatabase(); // Sync ke Firebase
+        updateDatabase();
     }
 }
 
@@ -72,7 +84,7 @@ document.getElementById("undoBtn").addEventListener("click", () => {
     if (lastHiddenMarker) {
         hiddenMarkers = hiddenMarkers.filter(id => id !== lastHiddenMarker);
         lastHiddenMarker = null;
-        updateDatabase(); // Sync ke Firebase
+        updateDatabase();
     }
 });
 
