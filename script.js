@@ -81,6 +81,20 @@ document.getElementById("tsunamiButton").addEventListener("click", function () {
     }
 });
 
+// Tambah marker baru bila klik kiri
+map.on("click", function (e) {
+    let name = prompt("Masukkan nama marker:");
+    if (name) {
+        let newId = addedMarkers.length + 1;
+        let newMarker = { id: newId, name: name, x: e.latlng.lng, y: e.latlng.lat };
+        addedMarkers.push(newMarker);
+        
+        let marker = L.marker([newMarker.y, newMarker.x])
+            .bindPopup(newMarker.name)
+            .addTo(map);
+    }
+});
+
 // Simpan marker sebagai fail JSON
 document.getElementById("saveButton").addEventListener("click", function () {
     let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(addedMarkers, null, 2));
