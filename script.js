@@ -8,6 +8,7 @@ var map = L.map('map', {
 var mapBounds = [[0, 0], [12888, 8192]]; // Saiz peta
 var image = L.imageOverlay('map.jpeg', mapBounds).addTo(map);
 map.fitBounds(mapBounds);
+map.setMaxBounds(imageBounds);
 
 var markers = {};
 var hiddenMarkers = [];
