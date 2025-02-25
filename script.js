@@ -30,7 +30,7 @@ function hideMarker(marker, id) {
     marker.remove();
     hiddenMarkers.push({ marker, id });
 
-    fetch(`https://script.google.com/macros/s/YOUR_GOOGLE_SCRIPT_ID/exec?action=hide&id=${id}`)
+    fetch(`https://script.google.com/macros/s/AKfycbwKhN6tUtqRcscE_OgXQAdzPJj04YwfAfpBN-LedxQBhdSKgu5eAMR2nAs4FD61QoCb/exec?action=hide&id=${id}`)
         .then(res => console.log("Marker hidden:", id));
 }
 
@@ -40,7 +40,7 @@ document.getElementById("undoButton").addEventListener("click", function () {
         let { marker, id } = hiddenMarkers.pop();
         marker.addTo(map);
 
-        fetch(`https://script.google.com/macros/s/YOUR_GOOGLE_SCRIPT_ID/exec?action=show&id=${id}`)
+        fetch(`https://script.google.com/macros/s/AKfycbwKhN6tUtqRcscE_OgXQAdzPJj04YwfAfpBN-LedxQBhdSKgu5eAMR2nAs4FD61QoCb/exec?action=show&id=${id}`)
             .then(res => console.log("Marker restored:", id));
     }
 });
@@ -49,7 +49,7 @@ document.getElementById("undoButton").addEventListener("click", function () {
 document.getElementById("tsunamiButton").addEventListener("click", function () {
     let pass = prompt("Masukkan password:");
     if (pass === "rm40") {
-        fetch(`https://script.google.com/macros/s/YOUR_GOOGLE_SCRIPT_ID/exec?action=reset`)
+        fetch(`https://script.google.com/macros/s/AKfycbwKhN6tUtqRcscE_OgXQAdzPJj04YwfAfpBN-LedxQBhdSKgu5eAMR2nAs4FD61QoCb/exec?action=reset`)
             .then(res => console.log("Tsunami triggered!"));
         location.reload();
     } else {
