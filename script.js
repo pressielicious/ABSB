@@ -1,85 +1,58 @@
-// Tetapan peta dan image overlay
+// Konfigurasi peta Leaflet
 var map = L.map('map', {
     minZoom: -2,
     maxZoom: 2,
     crs: L.CRS.Simple
-}).setView([0, 0], 0);
+});
 
-var w = 8192, h = 12888;
-var southWest = map.unproject([0, h], map.getMaxZoom());
-var northEast = map.unproject([w, 0], map.getMaxZoom());
-var bounds = new L.LatLngBounds(southWest, northEast);
+var bounds = [[0, 0], [12888, 8192]];
+var image = L.imageOverlay('map.jpeg', bounds).addTo(map);
+map.fitBounds(bounds);
 
-L.imageOverlay("map.jpeg", bounds).addTo(map);
-map.setMaxBounds(bounds);
-
-// Senarai marker
-var markers = {};
+// Menyimpan marker yang tersembunyi untuk undo
 var hiddenMarkers = [];
-var sheetURL = "https://script.google.com/macros/s/AKfycbyONoIb6v23lBC_LvbrAPjQKopRejy2HOqcqn0IDV0wk0L18c__kUmltcauDaEw1r3S/exec";
 
-// Muatkan marker dari marker.json
-fetch('marker.json')
+// Ambil data marker dari coordinates.json
+fetch("coordinates.json")
     .then(response => response.json())
     .then(data => {
-        data.forEach(m => {
-            var marker = L.marker(map.unproject([m.latlng.lng, m.latlng.lat], map.getMaxZoom()))
-                .addTo(map)
+        data.forEach(markerData => {
+            let marker = L.marker([markerData.y, markerData.x]).addTo(map)
+                .bindPopup(markerData.name)
                 .on('contextmenu', function () {
-                    hideMarker(m.id);
+                    hideMarker(marker, markerData.id);
                 });
-            markers[m.id] = marker;
         });
-
-        // Muatkan marker yang tersembunyi dari Google Sheets
-        fetch(sheetURL + "?action=get")
-            .then(response => response.json())
-            .then(hiddenIds => {
-                hiddenIds.forEach(id => {
-                    if (markers[id]) {
-                        markers[id].remove();
-                    }
-                });
-            });
     });
 
-// Fungsi untuk sembunyikan marker
-function hideMarker(id) {
-    if (markers[id]) {
-        hiddenMarkers.push(id);
-        markers[id].remove();
-        updateSheet(id, "hide");
-    }
+// Sembunyikan marker & sync ke Google Sheets
+function hideMarker(marker, id) {
+    marker.remove();
+    hiddenMarkers.push({ marker, id });
+
+    fetch(`https://script.google.com/macros/s/YOUR_GOOGLE_SCRIPT_ID/exec?action=hide&id=${id}`)
+        .then(res => console.log("Marker hidden:", id));
 }
 
-// Fungsi untuk undo marker terakhir yang di-hide
-document.getElementById("undoBtn").addEventListener("click", function () {
+// Undo hide marker terakhir
+document.getElementById("undoButton").addEventListener("click", function () {
     if (hiddenMarkers.length > 0) {
-        var id = hiddenMarkers.pop();
-        if (markers[id]) {
-            markers[id].addTo(map);
-            updateSheet(id, "undo");
-        }
+        let { marker, id } = hiddenMarkers.pop();
+        marker.addTo(map);
+
+        fetch(`https://script.google.com/macros/s/YOUR_GOOGLE_SCRIPT_ID/exec?action=show&id=${id}`)
+            .then(res => console.log("Marker restored:", id));
     }
 });
 
-// Fungsi untuk tsunami (reset semua marker)
-document.getElementById("tsunamiBtn").addEventListener("click", function () {
-    var password = prompt("Masukkan password:");
-    if (password === "rm40") {
-        hiddenMarkers = [];
-        Object.keys(markers).forEach(id => markers[id].addTo(map));
-        updateSheet(null, "reset");
+// Reset semua marker dengan password "rm40"
+document.getElementById("tsunamiButton").addEventListener("click", function () {
+    let pass = prompt("Masukkan password:");
+    if (pass === "rm40") {
+        fetch(`https://script.google.com/macros/s/YOUR_GOOGLE_SCRIPT_ID/exec?action=reset`)
+            .then(res => console.log("Tsunami triggered!"));
+        location.reload();
     } else {
         alert("Password salah!");
     }
 });
-
-// Fungsi update Google Sheets
-function updateSheet(id, action) {
-    fetch(sheetURL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: action, id: id })
-    });
-}
