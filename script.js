@@ -8,7 +8,7 @@ var map = L.map('map', {
 var mapBounds = [[0, 0], [12888, 8192]]; // Saiz peta
 var image = L.imageOverlay('map.jpeg', mapBounds).addTo(map);
 map.fitBounds(mapBounds);
-map.setMaxBounds(imageBounds);
+map.setMaxBounds(mapBounds);
 
 var markers = {};
 var hiddenMarkers = [];
@@ -51,6 +51,20 @@ document.getElementById('undoButton').addEventListener('click', function () {
         markers[lastHidden.id] = marker;
     }
 });
+
+// Fungsi Tsunami: kembalikan semua marker
+function tsunamiRestore() {
+    hiddenMarkers.forEach(coord => {
+        let marker = L.marker([coord.y, coord.x]).addTo(map)
+            .bindPopup(coord.name);
+        markers[coord.id] = marker;
+    });
+    hiddenMarkers = [];
+    syncToGoogleSheets();
+}
+
+// Butang Tsunami
+document.getElementById('tsunamiButton').addEventListener('click', tsunamiRestore);
 
 // Load markers
 loadMarkers();
