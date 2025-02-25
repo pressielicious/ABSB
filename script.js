@@ -14,7 +14,6 @@ map.fitBounds(bounds);
 // Simpan semua marker dan yang tersembunyi
 var markers = {};
 var hiddenMarkers = new Set();
-var addedMarkers = []; // Simpan marker yang ditambah
 
 // Ambil marker tersembunyi dari Google Sheets sebelum load marker
 fetch("https://script.google.com/macros/s/AKfycby3hmmexpvbrzZJJdgOKEFHo4HlMMKOA7OxoUAgMYJ1lMWSHWs5Bxpa45onG6K4BfUqjQ/exec?action=getHidden")
@@ -79,39 +78,5 @@ document.getElementById("tsunamiButton").addEventListener("click", function () {
             });
     } else {
         alert("Password salah!");
-    }
-});
-
-// Tambah marker baru bila klik kiri
-map.on('click', function (e) {
-    let markerName = prompt("Masukkan nama marker:");
-    if (markerName) {
-        let newId = addedMarkers.length + 1; // ID auto-increment
-        let newMarker = L.marker([e.latlng.lat, e.latlng.lng])
-            .bindPopup(markerName)
-            .addTo(map);
-
-        // Simpan marker dalam array
-        addedMarkers.push({
-            id: newId,
-            name: markerName,
-            x: e.latlng.lng,
-            y: e.latlng.lat
-        });
-    }
-});
-
-// Simpan marker sebagai fail JSON
-document.getElementById("saveButton").addEventListener("click", function () {
-    if (addedMarkers.length > 0) {
-        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(addedMarkers, null, 2));
-        let downloadAnchor = document.createElement("a");
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", "markers.json");
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
-    } else {
-        alert("Tiada marker untuk disimpan!");
     }
 });
