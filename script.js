@@ -9,17 +9,20 @@ var bounds = [[0, 0], [12888, 8192]];
 var image = L.imageOverlay('map.jpeg', bounds).addTo(map);
 map.fitBounds(bounds);
 
-// Simpan marker dan yang tersembunyi
+// Simpan semua marker dan yang tersembunyi
 var markers = {};
-var hiddenMarkers = [];
+var hiddenMarkers = new Set();
 
-// Ambil data marker dari coordinates.json & sync dengan Google Sheets
-fetch("coordinates.json")
+// Ambil marker tersembunyi dari Google Sheets sebelum load marker
+fetch("https://script.google.com/macros/s/AKfycby3hmmexpvbrzZJJdgOKEFHo4HlMMKOA7OxoUAgMYJ1lMWSHWs5Bxpa45onG6K4BfUqjQ/exec?action=getHidden")
     .then(response => response.json())
-    .then(data => {
-        fetch("https://script.google.com/macros/s/AKfycbyDqzPpAzZxPtpgHvnwuYE04hhZ29u4JHYd4WF3PzQmH-N2e65CYmsYjahLyS-dv204/exec?action=getHidden")
+    .then(hiddenIds => {
+        hiddenMarkers = new Set(hiddenIds);
+
+        // Ambil data marker dari coordinates.json
+        fetch("coordinates.json")
             .then(response => response.json())
-            .then(hiddenIds => {
+            .then(data => {
                 data.forEach(markerData => {
                     let marker = L.marker([markerData.y, markerData.x])
                         .bindPopup(markerData.name)
@@ -30,7 +33,7 @@ fetch("coordinates.json")
 
                     markers[markerData.id] = marker;
 
-                    if (hiddenIds.includes(markerData.id.toString())) {
+                    if (hiddenMarkers.has(markerData.id.toString())) {
                         marker.remove();
                     }
                 });
@@ -40,20 +43,25 @@ fetch("coordinates.json")
 // Sembunyikan marker & sync ke Google Sheets
 function hideMarker(marker, id) {
     marker.remove();
-    hiddenMarkers.push({ marker, id });
+    hiddenMarkers.add(id.toString());
 
-    fetch(`https://script.google.com/macros/s/AKfycbyDqzPpAzZxPtpgHvnwuYE04hhZ29u4JHYd4WF3PzQmH-N2e65CYmsYjahLyS-dv204/exec?action=hide&id=${id}`)
+    fetch(`https://script.google.com/macros/s/AKfycby3hmmexpvbrzZJJdgOKEFHo4HlMMKOA7OxoUAgMYJ1lMWSHWs5Bxpa45onG6K4BfUqjQ/exec?action=hide&id=${id}`)
         .then(() => console.log("Marker hidden:", id));
 }
 
 // Undo hide marker terakhir
 document.getElementById("undoButton").addEventListener("click", function () {
-    if (hiddenMarkers.length > 0) {
-        let { marker, id } = hiddenMarkers.pop();
-        marker.addTo(map);
+    if (hiddenMarkers.size > 0) {
+        let id = [...hiddenMarkers].pop();
+        let marker = markers[id];
 
-        fetch(`https://script.google.com/macros/s/AKfycbyDqzPpAzZxPtpgHvnwuYE04hhZ29u4JHYd4WF3PzQmH-N2e65CYmsYjahLyS-dv204/exec?action=show&id=${id}`)
-            .then(() => console.log("Marker restored:", id));
+        if (marker) {
+            marker.addTo(map);
+            hiddenMarkers.delete(id);
+
+            fetch(`https://script.google.com/macros/s/AKfycby3hmmexpvbrzZJJdgOKEFHo4HlMMKOA7OxoUAgMYJ1lMWSHWs5Bxpa45onG6K4BfUqjQ/exec?action=show&id=${id}`)
+                .then(() => console.log("Marker restored:", id));
+        }
     }
 });
 
@@ -61,7 +69,7 @@ document.getElementById("undoButton").addEventListener("click", function () {
 document.getElementById("tsunamiButton").addEventListener("click", function () {
     let pass = prompt("Masukkan password:");
     if (pass === "rm40") {
-        fetch(`https://script.google.com/macros/s/AKfycbyDqzPpAzZxPtpgHvnwuYE04hhZ29u4JHYd4WF3PzQmH-N2e65CYmsYjahLyS-dv204/exec?action=reset`)
+        fetch(`https://script.google.com/macros/s/AKfycby3hmmexpvbrzZJJdgOKEFHo4HlMMKOA7OxoUAgMYJ1lMWSHWs5Bxpa45onG6K4BfUqjQ/exec?action=reset`)
             .then(() => {
                 console.log("Tsunami triggered!");
                 location.reload();
