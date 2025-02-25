@@ -2,7 +2,9 @@
 var map = L.map('map', {
     minZoom: -2,
     maxZoom: 2,
-    crs: L.CRS.Simple
+    crs: L.CRS.Simple,
+    maxBounds: [[0, 0], [12888, 8192]], // Had peta
+    maxBoundsViscosity: 1.0 // Paksa peta kekal dalam had
 });
 
 var bounds = [[0, 0], [12888, 8192]];
