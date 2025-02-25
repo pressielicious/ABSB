@@ -9,20 +9,32 @@ var bounds = [[0, 0], [12888, 8192]];
 var image = L.imageOverlay('map.jpeg', bounds).addTo(map);
 map.fitBounds(bounds);
 
-// Menyimpan marker yang tersembunyi untuk undo
+// Simpan marker dan yang tersembunyi
+var markers = {};
 var hiddenMarkers = [];
 
-// Ambil data marker dari coordinates.json
+// Ambil data marker dari coordinates.json & sync dengan Google Sheets
 fetch("coordinates.json")
     .then(response => response.json())
     .then(data => {
-        data.forEach(markerData => {
-            let marker = L.marker([markerData.y, markerData.x]).addTo(map)
-                .bindPopup(markerData.name)
-                .on('contextmenu', function () {
-                    hideMarker(marker, markerData.id);
+        fetch("https://script.google.com/macros/s/YOUR_GOOGLE_SCRIPT_ID/exec?action=getHidden")
+            .then(response => response.json())
+            .then(hiddenIds => {
+                data.forEach(markerData => {
+                    let marker = L.marker([markerData.y, markerData.x])
+                        .bindPopup(markerData.name)
+                        .addTo(map)
+                        .on('contextmenu', function () {
+                            hideMarker(marker, markerData.id);
+                        });
+
+                    markers[markerData.id] = marker;
+
+                    if (hiddenIds.includes(markerData.id.toString())) {
+                        marker.remove();
+                    }
                 });
-        });
+            });
     });
 
 // Sembunyikan marker & sync ke Google Sheets
@@ -30,8 +42,8 @@ function hideMarker(marker, id) {
     marker.remove();
     hiddenMarkers.push({ marker, id });
 
-    fetch(`https://script.google.com/macros/s/AKfycbwKhN6tUtqRcscE_OgXQAdzPJj04YwfAfpBN-LedxQBhdSKgu5eAMR2nAs4FD61QoCb/exec?action=hide&id=${id}`)
-        .then(res => console.log("Marker hidden:", id));
+    fetch(`https://script.google.com/macros/s/YOUR_GOOGLE_SCRIPT_ID/exec?action=hide&id=${id}`)
+        .then(() => console.log("Marker hidden:", id));
 }
 
 // Undo hide marker terakhir
@@ -40,8 +52,8 @@ document.getElementById("undoButton").addEventListener("click", function () {
         let { marker, id } = hiddenMarkers.pop();
         marker.addTo(map);
 
-        fetch(`https://script.google.com/macros/s/AKfycbwKhN6tUtqRcscE_OgXQAdzPJj04YwfAfpBN-LedxQBhdSKgu5eAMR2nAs4FD61QoCb/exec?action=show&id=${id}`)
-            .then(res => console.log("Marker restored:", id));
+        fetch(`https://script.google.com/macros/s/YOUR_GOOGLE_SCRIPT_ID/exec?action=show&id=${id}`)
+            .then(() => console.log("Marker restored:", id));
     }
 });
 
@@ -49,9 +61,11 @@ document.getElementById("undoButton").addEventListener("click", function () {
 document.getElementById("tsunamiButton").addEventListener("click", function () {
     let pass = prompt("Masukkan password:");
     if (pass === "rm40") {
-        fetch(`https://script.google.com/macros/s/AKfycbwKhN6tUtqRcscE_OgXQAdzPJj04YwfAfpBN-LedxQBhdSKgu5eAMR2nAs4FD61QoCb/exec?action=reset`)
-            .then(res => console.log("Tsunami triggered!"));
-        location.reload();
+        fetch(`https://script.google.com/macros/s/YOUR_GOOGLE_SCRIPT_ID/exec?action=reset`)
+            .then(() => {
+                console.log("Tsunami triggered!");
+                location.reload();
+            });
     } else {
         alert("Password salah!");
     }
