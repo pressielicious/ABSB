@@ -31,13 +31,15 @@ function loadMarkers() {
             hideMarker(data.id);
         });
 
-        // **Phone: Tekan Lama (Long Press) untuk hide**
-        marker.on("mousedown touchstart", () => {
-            longPressTimer = setTimeout(() => hideMarker(data.id), 1500); // 1.5 saat
+        // **Phone: Long Press (1.5s) untuk hide**
+        marker.on("touchstart", () => {
+            longPressTimer = setTimeout(() => {
+                hideMarker(data.id);
+            }, 1500); // 1.5 saat
         });
 
-        marker.on("mouseup touchend", () => {
-            clearTimeout(longPressTimer); // Hentikan jika user lepaskan sebelum 1.5s
+        marker.on("touchend touchmove", () => {
+            clearTimeout(longPressTimer); // Hentikan jika user lepaskan atau gerakkan jari sebelum 1.5s
         });
 
         markers[data.id] = marker;
