@@ -101,33 +101,3 @@ map.on('click', function (e) {
         markerId++;
     }
 });
-
-// 🔹 **Tambahan Baru: Butang "Save Markers"**
-var saveButton = document.createElement("button");
-saveButton.innerText = "Save Markers";
-saveButton.style.position = "absolute";
-saveButton.style.top = "10px";
-saveButton.style.right = "10px";
-saveButton.style.padding = "10px 15px";
-saveButton.style.backgroundColor = "#007bff";
-saveButton.style.color = "white";
-saveButton.style.border = "none";
-saveButton.style.borderRadius = "5px";
-saveButton.style.cursor = "pointer";
-
-saveButton.addEventListener("click", function () {
-    if (newMarkers.length === 0) {
-        alert("Tiada marker baru untuk disimpan!");
-        return;
-    }
-
-    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(newMarkers, null, 4));
-    let downloadAnchor = document.createElement("a");
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", "new_markers.json");
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    document.body.removeChild(downloadAnchor);
-});
-
-document.body.appendChild(saveButton);
