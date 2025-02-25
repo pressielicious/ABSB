@@ -12,8 +12,8 @@ body, html {
 
 #undoBtn {
     position: absolute;
-    bottom: 20px;  /* Letakkan di bawah */
-    left: 10px;    /* Kekalkan di sebelah kiri */
+    top: 10px;   /* Letakkan di atas */
+    right: 10px; /* Alih ke kanan */
     z-index: 1000;
     padding: 8px 12px;
     background: #333;
